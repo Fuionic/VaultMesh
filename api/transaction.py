@@ -2,7 +2,7 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from model.transactionmodel import TransactionCreate, TransactionDB
+from model.transactionmodel import TransactionCreate, TransactionDB, DuplicateTransaction
 from repository.Database import get_db
 
 router = APIRouter(tags=["transactions"])
@@ -17,9 +17,14 @@ def create_transaction(
     db.add(db_transaction)
   
     try:
-     db.commit()
+      db.commit()
     except IntegrityError as exc:
       db.rollback()
+
+      db_duplicate_transaction = DuplicateTransaction(transaction_id = transaction.transaction_id, received_at = transaction.transaction_time)
+      db.add(db_duplicate_transaction)
+      db.commit()
+         
       raise HTTPException(
         status_code=409,
         detail="Transaction already exists",

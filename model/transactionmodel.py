@@ -26,3 +26,12 @@ class TransactionCreate(BaseModel):
     amount: float = Field(gt=0)
     merchant: str = Field(min_length=1, max_length=255)
     transaction_time: datetime
+
+
+class DuplicateTransaction(Base):
+    __tablename__ = "Duplicate_transactions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    transaction_id = Column(Integer, nullable=False)
+    received_at = Column(DateTime(timezone=True), nullable=False)
+    
