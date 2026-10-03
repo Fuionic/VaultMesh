@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 
 from model.transactionmodel import TransactionCreate, TransactionDB, DuplicateTransaction
 from repository.Database import get_db
+from rag.Embedding import to_text
+from rag.Ingestion_pipeline import vector_store
 
 router = APIRouter(tags=["transactions"])
 
@@ -29,5 +31,8 @@ def create_transaction(
         status_code=409,
         detail="Transaction already exists",
     ) from exc
+
+    transaction_text = to_text(db_transaction)
+    vector_store(transaction_text, db_transaction.transaction_id)
 
     return {"message": "Transaction added successfully"}
